@@ -11,7 +11,12 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {});
     Power.associate = function(models) {
-        // associations can be defined here
+        Power.belongsToMany(models.Heroe, {
+            through: 'HeroePowers',
+            as: 'heroes',
+            foreignKey: 'power_id',
+            otherKey: 'heroe_id'
+        });
     };
     return Power;
 };

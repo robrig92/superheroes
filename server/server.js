@@ -1,7 +1,7 @@
 "use strict";
 const express = require('express');
 const router = require('./routes/index');
-const Sequelize = require('sequelize');
+const Sequelize = require('sequelize').Sequelize;
 const bodyParser = require('body-parser');
 
 let app = express();

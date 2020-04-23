@@ -1,5 +1,5 @@
 "use strict";
-const Power = require('../models/index').Power;
+const Power = require('../models').Power;
 
 const index = (req, res) => {
     Power.findAll()

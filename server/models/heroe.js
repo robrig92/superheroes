@@ -5,10 +5,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true
         },
-        superpower: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-        },
         active: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
@@ -16,7 +12,12 @@ module.exports = (sequelize, DataTypes) => {
         age: DataTypes.INTEGER
     }, {});
     Heroe.associate = function(models) {
-        // associations can be defined here
+        Heroe.belongsToMany(models.Power, {
+            through: 'HeroePowers',
+            as: 'powers',
+            foreignKey: 'heroe_id',
+            otherKey: 'power_id'
+        });
     };
     return Heroe;
 };
