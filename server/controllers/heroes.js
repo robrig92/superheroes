@@ -47,22 +47,6 @@ const store = (req, res) => {
         });
 }
 
-const attachPowers = (heroe, powerIds) => {
-    powerIds.forEach((powerId) => {
-        Power.findByPk(powerId)
-            .then(async(power) => {
-                if (!power) {
-                    return;
-                }
-
-                await heroe.addPowers(power);
-            })
-            .catch((err) => {
-                console.log(err.message);
-            });
-    });
-}
-
 const show = (req, res) => {
     let id = req.params.id;
 
@@ -115,18 +99,20 @@ const update = (req, res) => {
                         heroe_id: heroe.id
                     }
                 })
-                .then(() => {
-                    attachPowers(heroe, powers);
+                .then(async() => {
+                    await attachPowers(heroe, powers);
                 })
-                .ctch((err) => {
+                .catch((err) => {
                     console.log(err.message);
                 });
         }
 
-        res.json({
-            data: {
-                heroe
-            }
+        getHeroe(heroe.id, (err, heroe) => {
+            res.json({
+                data: {
+                    heroe
+                }
+            });
         });
     });
 }
@@ -169,6 +155,22 @@ const destroy = (req, res) => {
                     err: err.message
                 });
             });
+    });
+}
+
+const attachPowers = async(heroe, powerIds) => {
+    await powerIds.forEach(async(powerId) => {
+        try {
+            let power = await Power.findByPk(powerId);
+
+            if (!power) {
+                return;
+            }
+
+            await heroe.addPowers(power);
+        } catch (err) {
+            console.log(err.message);
+        }
     });
 }
 
