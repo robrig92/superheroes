@@ -104,25 +104,17 @@ const update = (req, res) => {
                 });
 
                 await attachPowers(heroe, powers);
-
-                heroe = await Heroe.findByPk(heroe.id, { include: ['powers'] });
-
-                getHeroe(heroe.id, (err, heroe) => {
-                    return res.json({
-                        data: {
-                            heroe
-                        }
-                    });
-                });
             } catch (err) {
                 console.log(err.message);
             }
         }
 
-        res.json({
-            data: {
-                heroe
-            }
+        getHeroe(heroe.id, (err, heroe) => {
+            return res.json({
+                data: {
+                    heroe
+                }
+            });
         });
     });
 }
