@@ -27,17 +27,19 @@ const store = (req, res) => {
     };
 
     Heroe.create(args)
-        .then((heroe) => {
+        .then(async(heroe) => {
             if (!heroe) {
                 return;
             }
 
-            attachPowers(heroe, powers);
+            await attachPowers(heroe, powers);
 
-            res.json({
-                data: {
-                    heroe
-                }
+            getHeroe(heroe.id, (err, heroe) => {
+                res.json({
+                    data: {
+                        heroe
+                    }
+                });
             });
         }, {
             include: ['powers']
@@ -77,7 +79,7 @@ const update = (req, res) => {
     let body = req.body;
     let powers = body.powers || [];
 
-    getHeroe(id, (err, heroe) => {
+    getHeroe(id, async(err, heroe) => {
         if (err) {
             return res.status(500).json({
                 err
@@ -94,25 +96,33 @@ const update = (req, res) => {
         heroe.age = body.age || heroe.age;
 
         if (powers.length > 0) {
-            HeroePower.destroy({
+            try {
+                await HeroePower.destroy({
                     where: {
                         heroe_id: heroe.id
                     }
-                })
-                .then(async() => {
-                    await attachPowers(heroe, powers);
-                })
-                .catch((err) => {
-                    console.log(err.message);
                 });
+
+                await attachPowers(heroe, powers);
+
+                heroe = await Heroe.findByPk(heroe.id, { include: ['powers'] });
+
+                getHeroe(heroe.id, (err, heroe) => {
+                    return res.json({
+                        data: {
+                            heroe
+                        }
+                    });
+                });
+            } catch (err) {
+                console.log(err.message);
+            }
         }
 
-        getHeroe(heroe.id, (err, heroe) => {
-            res.json({
-                data: {
-                    heroe
-                }
-            });
+        res.json({
+            data: {
+                heroe
+            }
         });
     });
 }
@@ -159,19 +169,19 @@ const destroy = (req, res) => {
 }
 
 const attachPowers = async(heroe, powerIds) => {
-    await powerIds.forEach(async(powerId) => {
+    for (const powerId of powerIds) {
         try {
             let power = await Power.findByPk(powerId);
 
             if (!power) {
-                return;
+                continue;
             }
 
             await heroe.addPowers(power);
         } catch (err) {
             console.log(err.message);
         }
-    });
+    }
 }
 
 const getHeroe = (id, callback) => {

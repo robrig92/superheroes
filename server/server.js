@@ -3,6 +3,7 @@ const express = require('express');
 const router = require('./routes/index');
 const Sequelize = require('sequelize').Sequelize;
 const bodyParser = require('body-parser');
+const config = require('./config/config.json');
 
 let app = express();
 const port = process.env.PORT || 3000;
@@ -17,9 +18,9 @@ app.listen(port, () => {
     console.log(`Server running at port ${port}`);
 });
 
-const sequelize = new Sequelize('heroes', 'postgres', '', {
-    host: 'localhost',
-    dialect: 'postgres'
+const sequelize = new Sequelize(config.development.database, config.development.username, config.development.password, {
+    host: config.development.host,
+    dialect: config.development.dialect
 });
 
 sequelize
