@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
     const Heroe = sequelize.define('Heroe', {
         name: {
             type: DataTypes.STRING,
-            allowNull: true
+            allowNull: true,
+            unique: true
         },
         active: {
             type: DataTypes.BOOLEAN,
