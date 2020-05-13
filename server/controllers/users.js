@@ -2,7 +2,11 @@
 const User = require('../models').User;
 
 const index = (req, res) => {
-    User.findAll()
+    const filter = {
+        active: true
+    };
+
+    User.findAll({ where: filter })
         .then((users) => {
             res.json({
                 data: {
@@ -66,7 +70,7 @@ const update = (req, res) => {
 
     getUser(id, (err, user) => {
         if (err) {
-            return res.status(500).json({err});
+            return res.status(500).json({ err });
         }
 
         if (!user) {
@@ -88,8 +92,38 @@ const update = (req, res) => {
                 });
             })
             .catch((err) => {
-                res.status(500).json({err});
+                res.status(500).json({ err });
             })
+    });
+}
+
+const destroy = (req, res) => {
+    let id = req.params.id;
+
+    getUser(id, (err, user) => {
+        if (err) {
+            res.status(500).json({ err });
+        }
+
+        if (!user) {
+            res.status(404).json({
+                'message': 'Resource not found'
+            });
+        }
+
+        user.active = false;
+
+        user.save()
+            .then((user) => {
+                res.json({
+                    data: {
+                        user
+                    }
+                });
+            })
+            .catch((err) => {
+                res.status(500).json({ err });
+            });
     });
 }
 
@@ -107,5 +141,6 @@ module.exports = {
     index,
     store,
     show,
-    update
+    update,
+    destroy
 }
