@@ -1,5 +1,6 @@
 "use strict";
 const User = require('../models').User;
+const bcrypt = require('bcrypt');
 
 const index = (req, res) => {
     const filter = {
@@ -25,7 +26,7 @@ const store = (req, res) => {
         name: body.name,
         email: body.email,
         username: body.username,
-        password: body.password
+        password: bcrypt.hashSync(body.password, 10)
     };
 
     User.create(args)
@@ -67,6 +68,11 @@ const show = (req, res) => {
 const update = (req, res) => {
     let id = req.params.id;
     let body = req.body;
+    let password = req.body.password || undefined;
+
+    if (password) {
+        password = bcrypt.hashSync(password, 10);
+    }
 
     getUser(id, (err, user) => {
         if (err) {
@@ -81,7 +87,7 @@ const update = (req, res) => {
 
         user.name = body.name || user.name;
         user.email = body.email || user.email;
-        user.password = body.password || user.password;
+        user.password = password || user.password;
 
         user.save()
             .then((user) => {
@@ -133,7 +139,7 @@ const getUser = (id, callback) => {
             callback(null, user);
         })
         .catch((err) => {
-            callback(err);
+            callback(err.message);
         });
 }
 
