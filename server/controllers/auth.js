@@ -46,6 +46,10 @@ const auth = async (username, password) => {
             return null;
         }
 
+        if (!user.active) {
+            return null;
+        }
+
         return user;
     } catch(err) {
         console.log(err);
@@ -54,5 +58,6 @@ const auth = async (username, password) => {
 }
 
 module.exports = {
-    logIn
+    logIn,
+    signUp
 }
