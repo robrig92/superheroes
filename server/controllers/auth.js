@@ -58,6 +58,5 @@ const auth = async (username, password) => {
 }
 
 module.exports = {
-    logIn,
-    signUp
+    logIn
 }
