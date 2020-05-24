@@ -2,7 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const usersController = require('../controllers/users');
+const validateJwt = require('../middlewares/jwt').validateJwt;
 
+router.use('/users', validateJwt);
 router.get('/users', usersController.index);
 router.post('/users', usersController.store);
 router.get('/users/:id', usersController.show);

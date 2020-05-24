@@ -16,7 +16,7 @@ const logIn = async (req, res) => {
 
     const jwt = jsonwebtoken.sign({
         user
-    }, 'secret', { expiresIn: '1m' });
+    }, 'secret', { expiresIn: '1000h' });
 
     res.json({
         data: {
