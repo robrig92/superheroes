@@ -109,13 +109,19 @@ const update = (req, res) => {
             }
         }
 
-        getHeroe(heroe.id, (err, heroe) => {
-            return res.json({
-                data: {
-                    heroe
-                }
+        heroe.save()
+            .then((power) => {
+                return res.json({
+                    data: {
+                        heroe
+                    }
+                });
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    err
+                });
             });
-        });
     });
 }
 
