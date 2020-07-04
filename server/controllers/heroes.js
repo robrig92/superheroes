@@ -1,7 +1,12 @@
 "use strict";
+const fs = require('fs');
+const path = require('path');
+var appRoot = require('app-root-path');
 const Heroe = require('../models').Heroe;
 const Power = require('../models').Power;
 const HeroePower = require('../models').HeroePower;
+
+const uploadsDir = 'storage/uploads';
 
 const index = (req, res) => {
     Heroe.findAll({
@@ -18,6 +23,17 @@ const index = (req, res) => {
         });
 }
 
+const uploadFile = async (heroe, file) => {
+    const uploadsPath = path.join(appRoot.path, uploadsDir, `${heroe.id}`, file.name);
+    await file.mv(uploadsPath);
+
+    return uploadsPath;
+}
+
+const deleteFile = async (filePath) => {
+    fs.unlinkSync(filePath);
+}
+
 const store = (req, res) => {
     let body = req.body;
     let powers = body.powers || [];
@@ -25,6 +41,7 @@ const store = (req, res) => {
         name: body.name,
         age: body.age,
     };
+    let file = req.files ? req.files.photo : undefined;
 
     Heroe.create(args)
         .then(async(heroe) => {
@@ -33,6 +50,11 @@ const store = (req, res) => {
             }
 
             await attachPowers(heroe, powers);
+
+            if (file) {
+                heroe.filePath = await uploadFile(heroe, file);
+                await heroe.save();
+            }
 
             getHeroe(heroe.id, (err, heroe) => {
                 res.json({
@@ -78,6 +100,7 @@ const update = (req, res) => {
     let id = req.params.id;
     let body = req.body;
     let powers = body.powers || [];
+    const file = req.files ? req.files.photo : undefined;
 
     getHeroe(id, async(err, heroe) => {
         if (err) {
@@ -107,6 +130,14 @@ const update = (req, res) => {
             } catch (err) {
                 console.log(err.message);
             }
+        }
+
+        if (file) {
+            if (heroe.filePath) {
+                await deleteFile(heroe.filePath);
+            }
+
+            heroe.filePath = await uploadFile(heroe, file);
         }
 
         heroe.save()

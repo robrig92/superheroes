@@ -5,15 +5,23 @@ const Sequelize = require('sequelize').Sequelize;
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const config = require('./config/config.json');
+const fileUpload = require('express-fileupload');
 
 let app = express();
 const port = process.env.PORT || 3001;
 
-app.use(cors());
-app.use(bodyParser.urlencoded({
-    extended: false
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: `/tmp/`,
+    createParentPath: true,
+    safeFileNames: true,
+    preserveExtension: true
 }));
+app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 app.use(router);
 
 app.listen(port, () => {
