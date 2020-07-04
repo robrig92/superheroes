@@ -10,7 +10,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: true
         },
-        age: DataTypes.INTEGER
+        age: DataTypes.INTEGER,
+        filePath: {
+            type: DataTypes.STRING,
+            allowNull: true
+        }
     }, {});
     Heroe.associate = function(models) {
         Heroe.belongsToMany(models.Power, {

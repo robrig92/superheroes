@@ -1,4 +1,6 @@
 "use strict";
+const path = require('path');
+var appRoot = require('app-root-path');
 const Heroe = require('../models').Heroe;
 const Power = require('../models').Power;
 const HeroePower = require('../models').HeroePower;
@@ -25,6 +27,7 @@ const store = (req, res) => {
         name: body.name,
         age: body.age,
     };
+    let file = req.files ? req.files.photo : undefined;
 
     Heroe.create(args)
         .then(async(heroe) => {
@@ -33,6 +36,14 @@ const store = (req, res) => {
             }
 
             await attachPowers(heroe, powers);
+
+            if (file) {
+                const uploadsPath = path.join(appRoot.path, 'storage/uploads', `${heroe.id}`, file.name);
+                await file.mv(uploadsPath);
+
+                heroe.filePath = uploadsPath;
+                await heroe.save();
+            }
 
             getHeroe(heroe.id, (err, heroe) => {
                 res.json({
