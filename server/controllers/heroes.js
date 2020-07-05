@@ -6,7 +6,7 @@ const Heroe = require('../models').Heroe;
 const Power = require('../models').Power;
 const HeroePower = require('../models').HeroePower;
 
-const uploadsDir = 'storage/uploads';
+const uploadsDir = 'server/storage/uploads';
 
 const index = (req, res) => {
     Heroe.findAll({
@@ -24,10 +24,11 @@ const index = (req, res) => {
 }
 
 const uploadFile = async (heroe, file) => {
+    const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
     const uploadsPath = path.join(appRoot.path, uploadsDir, `${heroe.id}`, file.name);
     await file.mv(uploadsPath);
 
-    return uploadsPath;
+    return relativePath;
 }
 
 const deleteFile = async (filePath) => {

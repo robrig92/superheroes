@@ -10,6 +10,7 @@ const fileUpload = require('express-fileupload');
 let app = express();
 const port = process.env.PORT || 3001;
 
+app.use(express.static('server/storage'));
 app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: `/tmp/`,
