@@ -67,7 +67,6 @@ const show = (req, res) => {
             return res.status(500).json({
                 err
             });
-
         }
 
         if (!heroe) {
