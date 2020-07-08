@@ -1,10 +1,8 @@
 "use strict";
-const fs = require('fs');
-const path = require('path');
-var appRoot = require('app-root-path');
 const Heroe = require('../models').Heroe;
 const Power = require('../models').Power;
 const HeroePower = require('../models').HeroePower;
+const UploadedFileHelper = require('../helpers/uploaded-file-helper');
 
 const uploadsDir = 'server/storage/uploads';
 
@@ -21,18 +19,6 @@ const index = (req, res) => {
         .catch((err) => {
             res.status(500).json({ err: err.message });
         });
-}
-
-const uploadFile = async (heroe, file) => {
-    const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
-    const uploadsPath = path.join(appRoot.path, uploadsDir, `${heroe.id}`, file.name);
-    await file.mv(uploadsPath);
-
-    return relativePath;
-}
-
-const deleteFile = async (filePath) => {
-    fs.unlinkSync(filePath);
 }
 
 const store = (req, res) => {
@@ -53,7 +39,8 @@ const store = (req, res) => {
             await attachPowers(heroe, powers);
 
             if (file) {
-                heroe.filePath = await uploadFile(heroe, file);
+                const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
+                heroe.filePath = await UploadedFileHelper.upload(relativePath, file);
                 await heroe.save();
             }
 
@@ -135,10 +122,11 @@ const update = (req, res) => {
 
         if (file) {
             if (heroe.filePath) {
-                await deleteFile(heroe.filePath);
+                await UploadedFileHelper.destroy(heroe.filePath);
             }
 
-            heroe.filePath = await uploadFile(heroe, file);
+            const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
+            heroe.filePath = await UploadedFileHelper.upload(relativePath, file);
         }
 
         heroe.save()
