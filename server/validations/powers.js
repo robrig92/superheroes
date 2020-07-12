@@ -1,9 +1,9 @@
 "use strict"
 
-const HeroeSchema = require('./schemas/heroe');
+const PowerSchema = require('./schemas/power');
 
 const validate = (req, res, next) => {
-    const { error, value } = HeroeSchema.validate(req.body, { abortEarly: false });
+    const { error, value } = PowerSchema.validate(req.body, { abortEarly: false });
 
     if (error) {
         const errors = error.details.map(error => ({'field': error.path, 'message': error.message}))
