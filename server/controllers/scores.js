@@ -9,6 +9,12 @@ const getHeroe = (id, callback) => {
         .catch((err) => callback(err))
 }
 
+const getScore = (id, callback) => {
+    return Score.findByPk(id)
+        .then((score) => callback(null, score))
+        .catch((err) => callback(err));
+}
+
 const index = (req, res) => {
     const heroeId = req.params.id;
 
@@ -70,8 +76,10 @@ const show = (req, res) => {
             return res.status(404).json({ message: 'Resource not found' });
         }
 
-        try {
-            const score = await Score.findByPk(scoreId);
+        return getScore(scoreId, (err, score) => {
+            if (err) {
+                return res.status(500).json({ err });
+            }
 
             if (!score) {
                 return res.status(404).json({ message: 'Resource not found' });
@@ -81,14 +89,90 @@ const show = (req, res) => {
                 heroe,
                 score
             });
-        } catch (err) {
+        });
+    });
+}
+
+const update = (req, res) => {
+    const heroeId = req.params.id;
+    const scoreId = req.params.score_id;
+    const body = req.body;
+
+    return getHeroe(heroeId, (err, heroe) => {
+        if (err) {
             return res.status(500).json({ err });
         }
+
+        if (!heroe) {
+            return res.status(404).json({ message: 'Resource not found' });
+        }
+
+        return getScore(scoreId, async (err, score) => {
+            if (err) {
+                return res.status(500).json({ err });
+            }
+
+            if (!score) {
+                return res.status(404).json({ message: 'Resource not found' });
+            }
+
+            score.score = body.score ?? score.score;
+            score.comment = body.comment ?? score.comment;
+
+            try {
+                await score.save();
+
+                return res.status(200).json({
+                    heroe,
+                    score
+                });
+            } catch(err) {
+                return res.status(500).json({ err });
+            }
+        });
+    });
+}
+
+const destroy = (req, res) => {
+    const heroeId = req.params.id;
+    const scoreId = req.params.score_id;
+
+    return getHeroe(heroeId, (err, heroe) => {
+        if (err) {
+            return res.status(500).json({ err });
+        }
+
+        if (!heroe) {
+            return res.status(404).json({ message: 'Resource not found' });
+        }
+
+        return getScore(scoreId, async (err, score) => {
+            if (err) {
+                return res.status(500).json({ err });
+            }
+
+            if (!score) {
+                return res.status(404).json({ message: 'Resource not found' });
+            }
+
+            try {
+                await score.destroy();
+
+                return res.status(200).json({
+                    heroe,
+                    score
+                });
+            } catch (err) {
+                return res.status(500).json({ err });
+            }
+        });
     });
 }
 
 module.exports = {
     index,
     store,
-    show
+    show,
+    update,
+    destroy
 }

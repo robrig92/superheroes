@@ -17,5 +17,7 @@ router.delete('/heroes/:id', heroesController.destroy);
 router.get('/heroes/:id/scores', scoresController.index);
 router.post('/heroes/:id/scores', scoresController.store);
 router.get('/heroes/:id/scores/:score_id', scoresController.show);
+router.put('/heroes/:id/scores/:score_id', scoresController.update);
+router.delete('/heroes/:id/scores/:score_id', scoresController.destroy);
 
 module.exports = router;
