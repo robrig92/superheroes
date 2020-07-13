@@ -6,6 +6,18 @@ const UploadedFileHelper = require('../helpers/uploaded-file-helper');
 
 const uploadsDir = 'server/storage/uploads';
 
+const getHeroe = (id, callback) => {
+    Heroe.findByPk(id, {
+            include: ['powers']
+        })
+        .then((heroe) => {
+            callback(null, heroe);
+        })
+        .catch((err) => {
+            callback(err.message);
+        });
+}
+
 const index = (req, res) => {
     Heroe.findAll({
             include: ['powers'],
@@ -199,18 +211,6 @@ const attachPowers = async(heroe, powerIds) => {
             console.log(err.message);
         }
     }
-}
-
-const getHeroe = (id, callback) => {
-    Heroe.findByPk(id, {
-            include: ['powers']
-        })
-        .then((heroe) => {
-            callback(null, heroe);
-        })
-        .catch((err) => {
-            callback(err.message);
-        });
 }
 
 module.exports = {
