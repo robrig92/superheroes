@@ -23,6 +23,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'heroe_id',
             otherKey: 'power_id'
         });
+        Heroe.hasMany(models.HeroeScore, {
+            as: 'scores',
+            foreignKey: 'heroe_id',
+            onDelete: 'CASCADE'
+        });
     };
     return Heroe;
 };

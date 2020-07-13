@@ -11,7 +11,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
   HeroeScore.associate = function(models) {
-    // associations can be defined here
+    HeroeScore.belongsTo(models.Heroe, {
+        foreignKey: 'heroe_id'
+    });
   };
   return HeroeScore;
 };
