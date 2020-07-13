@@ -8,7 +8,7 @@ const uploadsDir = 'server/storage/uploads';
 
 const getHeroe = (id, callback) => {
     Heroe.findByPk(id, {
-            include: ['powers']
+            include: ['powers', 'scores']
         })
         .then((heroe) => {
             callback(null, heroe);
@@ -20,7 +20,7 @@ const getHeroe = (id, callback) => {
 
 const index = (req, res) => {
     Heroe.findAll({
-            include: ['powers'],
+            include: ['powers', 'scores'],
             order: [
                 ['id', 'DESC']
             ]
@@ -64,7 +64,7 @@ const store = (req, res) => {
                 });
             });
         }, {
-            include: ['powers']
+            include: ['powers', 'scores']
         })
         .catch((err) => {
             res.status(500).json({ err: err.message });
