@@ -42,6 +42,10 @@ const store = (req, res) => {
     };
     let file = req.files ? req.files.photo : undefined;
 
+    if (typeof powers === 'string') {
+        powers = JSON.parse(powers);
+    }
+
     Heroe.create(args)
         .then(async(heroe) => {
             if (!heroe) {
@@ -100,6 +104,10 @@ const update = (req, res) => {
     let body = req.body;
     let powers = body.powers || [];
     const file = req.files ? req.files.photo : undefined;
+
+    if (typeof powers === 'string') {
+        powers = JSON.parse(powers);
+    }
 
     getHeroe(id, async(err, heroe) => {
         if (err) {
