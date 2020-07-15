@@ -116,8 +116,8 @@ const update = (req, res) => {
                 return res.status(404).json({ message: 'Resource not found' });
             }
 
-            score.score = body.score ?? score.score;
-            score.comment = body.comment ?? score.comment;
+            score.score = body.score || score.score;
+            score.comment = body.comment || score.comment;
 
             try {
                 await score.save();
