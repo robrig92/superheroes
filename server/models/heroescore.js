@@ -12,7 +12,12 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   HeroeScore.associate = function(models) {
     HeroeScore.belongsTo(models.Heroe, {
-        foreignKey: 'heroe_id'
+      as: 'heroe',
+      foreignKey: 'heroe_id'
+    });
+    HeroeScore.belongsTo(models.User, {
+      as: 'user',
+      foreignKey: 'user_id'
     });
   };
   return HeroeScore;

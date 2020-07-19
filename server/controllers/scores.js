@@ -27,7 +27,7 @@ const index = (req, res) => {
             return res.status(404).json({ message: 'Resource not found' });
         }
 
-        const scores = await heroe.getScores();
+        const scores = await heroe.getScores({ include: 'user' });
 
         return res.status(200).json({
             heroe,
@@ -39,7 +39,7 @@ const index = (req, res) => {
 const store = (req, res) => {
     const heroeId = req.params.id;
     const { score, comment } = req.body;
-    const userId = req.sessionUser.id;
+    const userId = req.sessionUser.user.id;
 
     return getHeroe(heroeId, (err, heroe) => {
         if (err) {

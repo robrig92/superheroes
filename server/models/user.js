@@ -20,7 +20,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
   User.associate = function(models) {
-    // associations can be defined here
+    User.hasMany(models.HeroeScore, {
+      as: 'scores',
+      foreignKey: 'user_id',
+      onDelete: 'CASCADE'
+    })
   };
   return User;
 };

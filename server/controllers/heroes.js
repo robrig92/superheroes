@@ -1,4 +1,7 @@
 "use strict";
+
+const User = require('../models').User;
+const HeroeScore = require('../models').HeroeScore;
 const Heroe = require('../models').Heroe;
 const Power = require('../models').Power;
 const HeroePower = require('../models').HeroePower;
@@ -20,7 +23,15 @@ const getHeroe = (id, callback) => {
 
 const index = (req, res) => {
     Heroe.findAll({
-            include: ['powers', 'scores'],
+            include: [ 'powers' , {
+                model: HeroeScore,
+                as: 'scores',
+                include: [{
+                    model: User,
+                    as: 'user',
+                    attributes: ['name']
+                }]
+            }],
             order: [
                 ['id', 'DESC']
             ]
@@ -29,6 +40,7 @@ const index = (req, res) => {
             res.json({ data: { heroes } });
         })
         .catch((err) => {
+            console.log(err)
             res.status(500).json({ err: err.message });
         });
 }
