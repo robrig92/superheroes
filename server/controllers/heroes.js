@@ -40,7 +40,6 @@ const index = (req, res) => {
             res.json({ data: { heroes } });
         })
         .catch((err) => {
-            console.log(err)
             res.status(500).json({ err: err.message });
         });
 }
