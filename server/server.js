@@ -4,7 +4,7 @@ const router = require('./routes/index');
 const Sequelize = require('sequelize').Sequelize;
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const config = require('./config/config.json');
+const config = require('./config/config.js');
 const fileUpload = require('express-fileupload');
 
 let app = express();
