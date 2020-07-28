@@ -14,7 +14,7 @@ module.exports = {
         "password": process.env.DATABASE_PASSWORD,
         "database": process.env.DATABASE,
         "host": process.env.DATABASE_HOST,
-        "dialect": "mysql",
+        "dialect": "postgres",
         "operatorsAliases": false
     },
     "production": {
@@ -22,7 +22,7 @@ module.exports = {
         "password": process.env.DATABASE_PASSWORD,
         "database": process.env.DATABASE,
         "host": process.env.DATABASE_HOST,
-        "dialect": "mysql",
+        "dialect": "postgres",
         "operatorsAliases": false
     }
 }
