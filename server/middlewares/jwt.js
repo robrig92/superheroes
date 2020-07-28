@@ -12,7 +12,7 @@ const validateJwt = (req, res, next) => {
     const jwt = bearer.substr(7);
 
     try {
-        const decoded = JWT.verify(jwt, 'secret');
+        const decoded = JWT.verify(jwt, process.env.JWT_SECRET);
         req.sessionUser = decoded;
     } catch(exception) {
         return res.status(500).json({
