@@ -6,12 +6,13 @@ const scoresController = require('../controllers/scores');
 const validateJwt = require('../middlewares/jwt').validateJwt;
 const validateHeroe = require('../validations/heroes');
 const validateScore = require('../validations/heroe-scores');
+const validateAdmin = require('../middlewares/admin').validateAdmin;
 
 router.get('/heroes', heroesController.index);
-router.post('/heroes', validateJwt, validateHeroe, heroesController.store);
-router.get('/heroes/:id', validateJwt, heroesController.show);
-router.put('/heroes/:id', validateJwt, validateHeroe, heroesController.update);
-router.delete('/heroes/:id', validateJwt, heroesController.destroy);
+router.post('/heroes', validateJwt, validateAdmin, validateHeroe, heroesController.store);
+router.get('/heroes/:id', validateJwt, validateAdmin, heroesController.show);
+router.put('/heroes/:id', validateJwt, validateAdmin, validateHeroe, heroesController.update);
+router.delete('/heroes/:id', validateJwt, validateAdmin, heroesController.destroy);
 
 // Scores
 router.get('/heroes/:id/scores', validateJwt, scoresController.index);
