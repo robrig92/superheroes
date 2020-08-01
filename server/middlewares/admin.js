@@ -1,6 +1,6 @@
 
 const validateAdmin = (req, res, next) => {
-    if (!req.sessionUser.isAdmin) {
+    if (!req.sessionUser.user.isAdmin) {
         return res.status(403).json({ err: 'Unauthorized'});
     }
 
