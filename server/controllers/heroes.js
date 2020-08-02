@@ -55,7 +55,7 @@ const store = (req, res) => {
     let file = req.files ? req.files.photo : undefined;
 
     if (typeof powers === 'string') {
-        powers = JSON.parse(powers);
+        powers = powers.split(',');
     }
 
     Heroe.create(args)
