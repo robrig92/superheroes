@@ -6,6 +6,7 @@ const Heroe = require('../models').Heroe;
 const Power = require('../models').Power;
 const HeroePower = require('../models').HeroePower;
 const UploadedFileHelper = require('../helpers/uploaded-file-helper');
+const _ = require('lodash')
 
 const uploadsDir = 'server/storage/uploads';
 
@@ -217,7 +218,9 @@ const destroy = (req, res) => {
 }
 
 const attachPowers = async(heroe, powerIds) => {
-    for (const powerId of powerIds) {
+    const powersToAttach = _.isArray(powerIds) ? powerIds : [powerIds];
+
+    for (const powerId of powersToAttach) {
         try {
             let power = await Power.findByPk(powerId);
 
