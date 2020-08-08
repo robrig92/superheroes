@@ -1,18 +1,19 @@
 "use strict";
 const Power = require('../models').Power;
+const PowersService = require('../services/powers');
 
-const index = (req, res) => {
-    Power.findAll()
-        .then((powers) => {
-            res.json({
-                data: {
-                    powers
-                }
-            });
-        })
-        .catch((err) => {
-            res.status(500).json({ err });
+const index = async (req, res) => {
+    try {
+        const powers = await PowersService.findAll();
+
+        return res.json({
+            data: {
+                powers
+            }
         });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
 }
 
 const store = (req, res) => {
