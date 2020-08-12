@@ -16,55 +16,30 @@ const index = async (req, res) => {
     }
 }
 
-const store = (req, res) => {
+const store = async (req, res) => {
     let body = req.body;
     let args = {
         name: body.name
     };
 
-    Power.create(args)
-        .then((power) => {
-            res.status(201).json({
-                data: {
-                    power
-                }
-            });
-        })
-        .catch((err) => {
-            res.status(500).json({ err });
-        });
-}
+    try {
+        const power = await PowersService.store(args);
 
-const show = (req, res) => {
-    let id = req.params.id;
-
-    getPower(id, (err, power) => {
-        if (err) {
-            return res.status(500).json({ err });
-        }
-
-        if (!power) {
-            return res.status(404).json({
-                message: 'Resource not found'
-            });
-        }
-
-        res.json({
+        return res.status(201).json({
             data: {
                 power
             }
         });
-    });
+    } catch(err) {
+        return res.status(500).json({ err: err.message })
+    }
 }
 
-const update = (req, res) => {
+const show = async (req, res) => {
     let id = req.params.id;
-    let body = req.body;
 
-    getPower(id, (err, power) => {
-        if (err) {
-            return res.status(500).json({ err });
-        }
+    try {
+        const power = await PowersService.retrieve(id);
 
         if (!power) {
             return res.status(404).json({
@@ -72,30 +47,46 @@ const update = (req, res) => {
             });
         }
 
-        power.name = body.name;
-        power.save()
-            .then((power) => {
-                res.json({
-                    data: {
-                        power
-                    }
-                });
-            })
-            .catch((err) => {
-                res.status(500).json({
-                    err
-                });
-            });
-    });
+        return res.json({
+            data: {
+                power
+            }
+        });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
 }
 
-const destroy = (req, res) => {
+const update = async (req, res) => {
+    let id = req.params.id;
+    let body = req.body;
+
+    try {
+        let power = await PowersService.retrieve(id);
+
+        if (!power) {
+            return res.status(404).json({
+                message: 'Resource not found'
+            });
+        }
+
+        power = await PowersService.update(power, body);
+
+        return res.json({
+            data: {
+                power
+            }
+        });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
+}
+
+const destroy = async (req, res) => {
     let id = req.params.id;
 
-    getPower(id, (err, power) => {
-        if (err) {
-            return res.status(500).json({ err });
-        }
+    try {
+        const power = await PowersService.retrieve(id);
 
         if (!power) {
             return res.status(404).json({
@@ -103,29 +94,17 @@ const destroy = (req, res) => {
             });
         }
 
-        power.destroy()
-            .then(() => {
-                res.json({
-                    message: 'Deleted',
-                    data: {
-                        power
-                    }
-                });
-            })
-            .catch((err) => {
-                res.status(500).json({ err });
-            });
-    });
-}
+        await PowersService.destroy(power);
 
-const getPower = (id, callback) => {
-    Power.findByPk(id)
-        .then((power) => {
-            callback(null, power);
-        })
-        .catch((err) => {
-            callback(err);
+        return res.json({
+            message: 'Deleted',
+            data: {
+                power
+            }
         });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
 }
 
 module.exports = {
