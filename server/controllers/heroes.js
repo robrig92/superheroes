@@ -7,6 +7,7 @@ const Power = require('../models').Power;
 const HeroePower = require('../models').HeroePower;
 const UploadedFileHelper = require('../helpers/uploaded-file-helper');
 const _ = require('lodash')
+const HeroesService = require('../services/heroes');
 
 const uploadsDir = 'server/storage/uploads';
 
@@ -22,27 +23,14 @@ const getHeroe = (id, callback) => {
         });
 }
 
-const index = (req, res) => {
-    Heroe.findAll({
-            include: [ 'powers' , {
-                model: HeroeScore,
-                as: 'scores',
-                include: [{
-                    model: User,
-                    as: 'user',
-                    attributes: ['name']
-                }]
-            }],
-            order: [
-                ['id', 'DESC']
-            ]
-        })
-        .then((heroes) => {
-            res.json({ data: { heroes } });
-        })
-        .catch((err) => {
-            res.status(500).json({ err: err.message });
-        });
+const index = async (req, res) => {
+    try {
+        const heroes = await HeroesService.getAll();
+
+        return res.json({ data: { heroes } });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
 }
 
 const store = (req, res) => {
