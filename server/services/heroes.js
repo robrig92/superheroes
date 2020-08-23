@@ -4,6 +4,7 @@ const Heroe = require('../models').Heroe;
 const User = require('../models').User;
 const Power = require('../models').Power;
 const HeroeScore = require('../models').HeroeScore;
+const HeroePower = require('../models').HeroePower;
 const UploadedFileHelper = require('../helpers/uploaded-file-helper');
 
 const uploadsDir = 'server/storage/uploads';
@@ -62,5 +63,52 @@ module.exports = {
         } catch(error) {
             throw error;
         }
+    },
+    async find(id) {
+        try {
+            return await Heroe.findByPk(id, {
+                include: ["powers", "scores"]
+            });
+        } catch(error) {
+            throw error;
+        }
+    },
+    async update(heroe, args) {
+        const { heroeBody, powers, file } = args;
+
+        heroe.name = heroeBody.name || heroe.name;
+        heroe.age = heroeBody.age || heroe.age;
+
+        try {
+            if (powers.length > 0) {
+                try {
+                    await HeroePower.destroy({
+                        where: {
+                            heroe_id: heroe.id
+                        }
+                    });
+
+                    await this.attachPowers(heroe, powers);
+                } catch (err) {
+                    throw err;
+                }
+            }
+
+            if (file) {
+                if (heroe.filePath) {
+                    await UploadedFileHelper.destroy(heroe.filePath);
+                }
+
+                const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
+                heroe.filePath = await UploadedFileHelper.upload(relativePath, file);
+            }
+
+            await heroe.save();
+
+            return heroe.reload();
+        } catch(error) {
+            throw error;
+        }
+
     }
 }

@@ -1,11 +1,8 @@
 "use strict";
 
-const User = require('../models').User;
-const HeroeScore = require('../models').HeroeScore;
 const Heroe = require('../models').Heroe;
 const Power = require('../models').Power;
 const HeroePower = require('../models').HeroePower;
-const UploadedFileHelper = require('../helpers/uploaded-file-helper');
 const _ = require('lodash')
 const HeroesService = require('../services/heroes');
 
@@ -63,15 +60,11 @@ const store = async (req, res) => {
     }
 }
 
-const show = (req, res) => {
+const show = async (req, res) => {
     let id = req.params.id;
 
-    getHeroe(id, (err, heroe) => {
-        if (err) {
-            return res.status(500).json({
-                err
-            });
-        }
+    try {
+        const heroe = await HeroesService.find(id);
 
         if (!heroe) {
             return res.status(404).json({
@@ -79,15 +72,17 @@ const show = (req, res) => {
             });
         }
 
-        res.json({
+        return res.json({
             data: {
                 heroe
             }
         });
-    });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
 };
 
-const update = (req, res) => {
+const update = async (req, res) => {
     let id = req.params.id;
     let body = req.body;
     let powers = body.powers || [];
@@ -97,12 +92,8 @@ const update = (req, res) => {
         powers = JSON.parse(powers);
     }
 
-    getHeroe(id, async(err, heroe) => {
-        if (err) {
-            return res.status(500).json({
-                err
-            });
-        }
+    try {
+        const heroe = await HeroesService.find(id);
 
         if (!heroe) {
             return res.status(404).json({
@@ -110,57 +101,23 @@ const update = (req, res) => {
             });
         }
 
-        heroe.name = body.name || heroe.name;
-        heroe.age = body.age || heroe.age;
+        const updatedHeroe = await HeroesService.update(heroe, {
+            heroeBody: body,
+            powers,
+            file
+        })
 
-        if (powers.length > 0) {
-            try {
-                await HeroePower.destroy({
-                    where: {
-                        heroe_id: heroe.id
-                    }
-                });
-
-                await attachPowers(heroe, powers);
-            } catch (err) {
-                console.log(err.message);
-            }
-        }
-
-        if (file) {
-            if (heroe.filePath) {
-                await UploadedFileHelper.destroy(heroe.filePath);
-            }
-
-            const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
-            heroe.filePath = await UploadedFileHelper.upload(relativePath, file);
-        }
-
-        heroe.save()
-            .then((power) => {
-                return res.json({
-                    data: {
-                        heroe
-                    }
-                });
-            })
-            .catch((err) => {
-                res.status(500).json({
-                    err
-                });
-            });
-    });
+        return res.json({ data: { heroe: updatedHeroe } });
+    } catch (err) {
+        return res.status(500).json({ err: err.message });
+    }
 }
 
-const destroy = (req, res) => {
+const destroy = async (req, res) => {
     let id = req.params.id;
 
-    getHeroe(id, (err, heroe) => {
-        if (err) {
-            return res.status(500).json({
-                err
-            });
-        }
+    try {
+        const heroe = await HeroesService.find(id);
 
         if (!heroe) {
             return res.status(404).json({
@@ -169,45 +126,29 @@ const destroy = (req, res) => {
         }
 
         HeroePower.destroy({
-                where: {
-                    heroe_id: heroe.id
-                }
-            })
+            where: {
+                heroe_id: heroe.id
+            }
+        })
             .then(() => {
                 heroe.destroy()
                     .then(() => {
-                        res.json({
+                        return res.json({
                             message: 'deleted',
                             heroe
                         });
                     })
                     .catch((err) => {
-                        res.status(500).json({ err: err.message });
+                        return res.status(500).json({ err: err.message });
                     });
             })
             .catch((err) => {
-                res.status(500).json({
+                return res.status(500).json({
                     err: err.message
                 });
             });
-    });
-}
-
-const attachPowers = async(heroe, powerIds) => {
-    const powersToAttach = _.isArray(powerIds) ? powerIds : [powerIds];
-
-    for (const powerId of powersToAttach) {
-        try {
-            let power = await Power.findByPk(powerId);
-
-            if (!power) {
-                continue;
-            }
-
-            await heroe.addPowers(power);
-        } catch (err) {
-            console.log(err.message);
-        }
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
     }
 }
 
