@@ -33,7 +33,7 @@ const index = async (req, res) => {
     }
 }
 
-const store = (req, res) => {
+const store = async (req, res) => {
     let body = req.body;
     let powers = body.powers || [];
     let args = {
@@ -46,33 +46,21 @@ const store = (req, res) => {
         powers = powers.split(',');
     }
 
-    Heroe.create(args)
-        .then(async(heroe) => {
-            if (!heroe) {
-                return;
-            }
-
-            await attachPowers(heroe, powers);
-
-            if (file) {
-                const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
-                heroe.filePath = await UploadedFileHelper.upload(relativePath, file);
-                await heroe.save();
-            }
-
-            getHeroe(heroe.id, (err, heroe) => {
-                res.json({
-                    data: {
-                        heroe
-                    }
-                });
-            });
-        }, {
-            include: ['powers', 'scores']
-        })
-        .catch((err) => {
-            res.status(500).json({ err: err.message });
+    try {
+        const heroe = await HeroesService.store({
+            heroeBody: args,
+            powers,
+            file
         });
+
+        return res.json({
+            data: {
+                heroe
+            }
+        });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
 }
 
 const show = (req, res) => {
