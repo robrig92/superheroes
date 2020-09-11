@@ -109,6 +109,17 @@ module.exports = {
         } catch(error) {
             throw error;
         }
-
+    },
+    async destroy(heroe) {
+        try {
+            await HeroePower.destroy({
+                where: {
+                    heroe_id: heroe.id
+                }
+            });
+            await heroe.destroy();
+        } catch (error) {
+            throw error;
+        }
     }
 }

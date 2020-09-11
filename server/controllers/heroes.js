@@ -1,24 +1,7 @@
 "use strict";
 
-const Heroe = require('../models').Heroe;
-const Power = require('../models').Power;
-const HeroePower = require('../models').HeroePower;
 const _ = require('lodash')
 const HeroesService = require('../services/heroes');
-
-const uploadsDir = 'server/storage/uploads';
-
-const getHeroe = (id, callback) => {
-    Heroe.findByPk(id, {
-            include: ['powers', 'scores']
-        })
-        .then((heroe) => {
-            callback(null, heroe);
-        })
-        .catch((err) => {
-            callback(err.message);
-        });
-}
 
 const index = async (req, res) => {
     try {
@@ -125,28 +108,12 @@ const destroy = async (req, res) => {
             });
         }
 
-        HeroePower.destroy({
-            where: {
-                heroe_id: heroe.id
-            }
-        })
-            .then(() => {
-                heroe.destroy()
-                    .then(() => {
-                        return res.json({
-                            message: 'deleted',
-                            heroe
-                        });
-                    })
-                    .catch((err) => {
-                        return res.status(500).json({ err: err.message });
-                    });
-            })
-            .catch((err) => {
-                return res.status(500).json({
-                    err: err.message
-                });
-            });
+        await HeroesService.destroy(heroe);
+
+        return res.json({
+            message: 'deleted',
+            heroe
+        });
     } catch(err) {
         return res.status(500).json({ err: err.message });
     }
