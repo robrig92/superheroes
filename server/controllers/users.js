@@ -1,55 +1,33 @@
 "use strict";
-const User = require('../models').User;
-const bcrypt = require('bcrypt');
+const UsersService = require('../services/users');
 
 const index = (req, res) => {
-    const filter = {
-        active: true
-    };
+    try {
+        const users = UsersService.activeUsers();
 
-    User.findAll({ where: filter })
-        .then((users) => {
-            res.json({
-                data: {
-                    users
-                }
-            });
-        })
-        .catch((err) => {
-            res.status(500).json({ err });
-        })
+        return res.json({ users });
+    } catch(error) {
+        return res.status(500).json({ error: error.message });
+    }
 }
 
 const store = (req, res) => {
     let body = req.body;
-    let args = {
-        name: body.name,
-        email: body.email,
-        username: body.username,
-        password: bcrypt.hashSync(body.password, 10)
-    };
 
-    User.create(args)
-        .then((user) => {
-            res.status(201)
-                .json({
-                    data: {
-                        user
-                    }
-                });
-        })
-        .catch((err) => {
-            res.status(500).json({ err })
-        })
+    try {
+        const user = UsersService.create(body);
+
+        return res.json({ user });
+    } catch(error) {
+        return res.status(500).json({ error: error.message });
+    }
 }
 
 const show = (req, res) => {
     let id = req.params.id;
 
-    getUser(id, (err, user) => {
-        if (err) {
-            return res.status(500).json({err});
-        }
+    try {
+        const user = UserRepository.get(id);
 
         if (!user) {
             return res.status(404).json({
@@ -57,27 +35,23 @@ const show = (req, res) => {
             });
         }
 
-        res.json({
+        return res.json({
             data: {
                 user
             }
         });
-    });
+
+    } catch(error) {
+        return res.status(500).json({ error: error.message });
+    }
 }
 
-const update = (req, res) => {
+const update = async (req, res) => {
     let id = req.params.id;
     let body = req.body;
-    let password = req.body.password || undefined;
 
-    if (password) {
-        password = bcrypt.hashSync(password, 10);
-    }
-
-    getUser(id, (err, user) => {
-        if (err) {
-            return res.status(500).json({ err });
-        }
+    try {
+        const user = UsersService.get(id);
 
         if (!user) {
             return res.status(404).json({
@@ -85,31 +59,19 @@ const update = (req, res) => {
             });
         }
 
-        user.name = body.name || user.name;
-        user.email = body.email || user.email;
-        user.password = password || user.password;
+        const updatedUser = await UsersService.update(user, body);
 
-        user.save()
-            .then((user) => {
-                res.json({
-                    data: {
-                        user
-                    }
-                });
-            })
-            .catch((err) => {
-                res.status(500).json({ err });
-            })
-    });
+        return res.json({ user: updatedUser });
+    } catch(error) {
+        return res.status(500).json({ error: error.message });
+    }
 }
 
-const destroy = (req, res) => {
+const destroy = async (req, res) => {
     let id = req.params.id;
 
-    getUser(id, (err, user) => {
-        if (err) {
-            res.status(500).json({ err });
-        }
+    try {
+        const user = await UserService.get(id);
 
         if (!user) {
             res.status(404).json({
@@ -117,30 +79,12 @@ const destroy = (req, res) => {
             });
         }
 
-        user.active = false;
+        const updatedUser = await UserRepository.destroy(user);
 
-        user.save()
-            .then((user) => {
-                res.json({
-                    data: {
-                        user
-                    }
-                });
-            })
-            .catch((err) => {
-                res.status(500).json({ err });
-            });
-    });
-}
-
-const getUser = (id, callback) => {
-    User.findByPk(id)
-        .then((user) => {
-            callback(null, user);
-        })
-        .catch((err) => {
-            callback(err.message);
-        });
+        return res.json({ user: updatedUser });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
 }
 
 module.exports = {

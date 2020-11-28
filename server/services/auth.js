@@ -1,19 +1,10 @@
 'use strict'
-const bcrypt = require('bcrypt');
-const UserRepository = require('../models').User;
 
-const lookUpUser = async (username) => {
-    const user = await UserRepository.findOne({
-        where: {
-            username: username
-        }
-    });
-
-    return user;
-}
+const UserRepository = require('../repositories/user');
+const PasswordsUtils = require('../utils/passwords');
 
 const isCorrectPassword = (userPassword, incomingPassword) => {
-    return bcrypt.compareSync(incomingPassword, userPassword);
+    return PasswordsUtils.compare(incomingPassword, userPassword);
 }
 
 const canLogin = (user) => {
@@ -27,26 +18,21 @@ const auth = async (credentials) => {
         return null;
     }
 
-    try {
-        const user = await lookUpUser(username);
+    const user = await UserRepository.findByUsername(username);
 
-        if (!user) {
-            return null;
-        }
-
-        if (!isCorrectPassword(user.password, password)) {
-            return null;
-        }
-
-        if (!canLogin(user)) {
-            return null;
-        }
-
-        return user;
-    } catch(err) {
-        console.log(err);
-        return false;
+    if (!user) {
+        return null;
     }
+
+    if (!isCorrectPassword(user.password, password)) {
+        return null;
+    }
+
+    if (!canLogin(user)) {
+        return null;
+    }
+
+    return user;
 }
 
 module.exports = {
