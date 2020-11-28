@@ -1,14 +1,10 @@
 'use strict';
 
-const User = require('../models').User;
+const UserRepository = require('../repositories/user');
 const PasswordsUtils = require('../utils/passwords');
 
 const activeUsers = async () => {
-    const filter = {
-        active: true
-    };
-
-    return await User.findAll({ where: filter });
+    return await UserRepository.getAllActive();
 };
 
 const create = async (data) => {
@@ -19,11 +15,11 @@ const create = async (data) => {
         password: PasswordsUtils.hash(data.password)
     };
 
-    return await User.create(args);
+    return await UserRepository.create(args);
 };
 
 const get = async (id) => {
-    return await UserModel.findByPk(id);
+    return await UserRepository.find(id);
 };
 
 const update = async (user, data) => {
@@ -34,17 +30,11 @@ const update = async (user, data) => {
     user.email = data.email || user.email;
     user.password = hashedPassword || user.password;
 
-    await user.save();
-
-    return await user.reload();
+    return await UserRepository.update(user);
 };
 
 const destroy = async (user) => {
-    user.active = false;
-
-    await user.save();
-
-    return await user.reload();
+    return await UserRepository.destroy(user);
 }
 
 module.exports = {
