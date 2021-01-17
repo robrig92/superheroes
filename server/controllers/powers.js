@@ -1,10 +1,10 @@
 "use strict";
 
-const PowersService = require('../services/powers');
+const powersService = require('../services/powers');
 
 const index = async (req, res) => {
     try {
-        const powers = await PowersService.findAll();
+        const powers = await powersService.findAll();
 
         return res.json({
             data: {
@@ -23,7 +23,7 @@ const store = async (req, res) => {
     };
 
     try {
-        const power = await PowersService.store(args);
+        const power = await powersService.store(args);
 
         return res.status(201).json({
             data: {
@@ -39,7 +39,7 @@ const show = async (req, res) => {
     let id = req.params.id;
 
     try {
-        const power = await PowersService.retrieve(id);
+        const power = await powersService.retrieve(id);
 
         if (!power) {
             return res.status(404).json({
@@ -62,7 +62,7 @@ const update = async (req, res) => {
     let body = req.body;
 
     try {
-        let power = await PowersService.retrieve(id);
+        let power = await powersService.retrieve(id);
 
         if (!power) {
             return res.status(404).json({
@@ -70,7 +70,7 @@ const update = async (req, res) => {
             });
         }
 
-        power = await PowersService.update(power, body);
+        power = await powersService.update(power, body);
 
         return res.json({
             data: {
@@ -86,7 +86,7 @@ const destroy = async (req, res) => {
     let id = req.params.id;
 
     try {
-        const power = await PowersService.retrieve(id);
+        const power = await powersService.retrieve(id);
 
         if (!power) {
             return res.status(404).json({
@@ -94,7 +94,7 @@ const destroy = async (req, res) => {
             });
         }
 
-        await PowersService.destroy(power);
+        await powersService.destroy(power);
 
         return res.json({
             message: 'Deleted',

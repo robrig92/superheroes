@@ -1,9 +1,9 @@
 "use strict";
-const UsersService = require('../services/users');
+const usersService = require('../services/users');
 
 const index = (req, res) => {
     try {
-        const users = UsersService.activeUsers();
+        const users = usersService.activeUsers();
 
         return res.json({ users });
     } catch(error) {
@@ -15,7 +15,7 @@ const store = (req, res) => {
     let body = req.body;
 
     try {
-        const user = UsersService.create(body);
+        const user = usersService.create(body);
 
         return res.json({ user });
     } catch(error) {
@@ -51,7 +51,7 @@ const update = async (req, res) => {
     let body = req.body;
 
     try {
-        const user = UsersService.get(id);
+        const user = usersService.get(id);
 
         if (!user) {
             return res.status(404).json({
@@ -59,7 +59,7 @@ const update = async (req, res) => {
             });
         }
 
-        const updatedUser = await UsersService.update(user, body);
+        const updatedUser = await usersService.update(user, body);
 
         return res.json({ user: updatedUser });
     } catch(error) {

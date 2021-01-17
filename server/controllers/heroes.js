@@ -1,11 +1,11 @@
 "use strict";
 
 const _ = require('lodash')
-const HeroesService = require('../services/heroes');
+const heroesService = require('../services/heroes');
 
 const index = async (req, res) => {
     try {
-        const heroes = await HeroesService.getAll();
+        const heroes = await heroesService.getAll();
 
         return res.json({ data: { heroes } });
     } catch(err) {
@@ -27,7 +27,7 @@ const store = async (req, res) => {
     }
 
     try {
-        const heroe = await HeroesService.store({
+        const heroe = await heroesService.store({
             heroeBody: args,
             powers,
             file
@@ -47,7 +47,7 @@ const show = async (req, res) => {
     let id = req.params.id;
 
     try {
-        const heroe = await HeroesService.find(id);
+        const heroe = await heroesService.find(id);
 
         if (!heroe) {
             return res.status(404).json({
@@ -76,7 +76,7 @@ const update = async (req, res) => {
     }
 
     try {
-        const heroe = await HeroesService.find(id);
+        const heroe = await heroesService.find(id);
 
         if (!heroe) {
             return res.status(404).json({
@@ -84,7 +84,7 @@ const update = async (req, res) => {
             });
         }
 
-        const updatedHeroe = await HeroesService.update(heroe, {
+        const updatedHeroe = await heroesService.update(heroe, {
             heroeBody: body,
             powers,
             file
@@ -100,7 +100,7 @@ const destroy = async (req, res) => {
     let id = req.params.id;
 
     try {
-        const heroe = await HeroesService.find(id);
+        const heroe = await heroesService.find(id);
 
         if (!heroe) {
             return res.status(404).json({
@@ -108,7 +108,7 @@ const destroy = async (req, res) => {
             });
         }
 
-        await HeroesService.destroy(heroe);
+        await heroesService.destroy(heroe);
 
         return res.json({
             message: 'deleted',
