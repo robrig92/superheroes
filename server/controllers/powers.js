@@ -1,5 +1,5 @@
 "use strict";
-const Power = require('../models').Power;
+
 const PowersService = require('../services/powers');
 
 const index = async (req, res) => {

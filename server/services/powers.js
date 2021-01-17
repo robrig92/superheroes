@@ -1,41 +1,22 @@
 'use strict'
-const Power = require('../models').Power;
+
+const powersRepository = require('../repositories/powers');
 
 module.exports = {
     async findAll() {
-        try {
-            return await Power.findAll();
-        } catch(error) {
-            throw error;
-        }
+        return await powersRepository.findAll();
     },
     async store(power) {
-        try {
-            return await Power.create(power);
-        } catch(error) {
-            throw error;
-        }
+        return await powersRepository.store(power);
     },
     async retrieve(id) {
-        try {
-            return await Power.findByPk(id);
-        } catch(error) {
-            throw error;
-        }
+        return await powersRepository.retrieve(id);
     },
     async update(power, args) {
-        try {
-            power.name = args.name;
-            return await power.save();
-        } catch(error) {
-            throw error;
-        }
+        power.name = args.name;
+        return await powersRepository.update(power);
     },
     async destroy(power) {
-        try {
-            return await power.destroy();
-        } catch(error) {
-            throw error;
-        }
+        return await powersRepository.destroy(power);
     }
 }

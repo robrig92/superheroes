@@ -2,10 +2,11 @@
 const _ = require('lodash');
 const Heroe = require('../models').Heroe;
 const User = require('../models').User;
-const Power = require('../models').Power;
 const HeroeScore = require('../models').HeroeScore;
 const HeroePower = require('../models').HeroePower;
 const UploadedFileHelper = require('../helpers/uploaded-file-helper');
+
+const powersRepository = require('../repositories/powers');
 
 const uploadsDir = 'server/storage/uploads';
 
@@ -35,7 +36,7 @@ module.exports = {
 
         for (const powerId of powersToAttach) {
             try {
-                let power = await Power.findByPk(powerId);
+                let power = await powersRepository.retrieve(powerId);
 
                 if (!power) {
                     continue;
