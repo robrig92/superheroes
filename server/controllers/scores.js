@@ -1,7 +1,7 @@
 "use strict"
 
-const Heroe = require('../models').Heroe;
 const Score = require('../models').HeroeScore;
+const heroesRepository = require('../repositories/heroes');
 
 const getHeroe = (id, callback) => {
     return Heroe.findByPk(id)
@@ -15,16 +15,14 @@ const getScore = (id, callback) => {
         .catch((err) => callback(err));
 }
 
-const index = (req, res) => {
-    const heroeId = req.params.id;
+const index = async (req, res) => {
+    try {
+        const heroeId = req.params.id;
 
-    return getHeroe(heroeId, async (err, heroe) => {
-        if (err) {
-            return res.status(500).json({ err });
-        }
+        const heroe = await heroesRepository.retrieve(heroeId);
 
         if (!heroe) {
-            return res.status(404).json({ message: 'Resource not found' });
+            return res.status(404).json({ mesage: 'Resource not found' });
         }
 
         const scores = await heroe.getScores({ include: 'user' });
@@ -33,18 +31,18 @@ const index = (req, res) => {
             heroe,
             scores
         });
-    });
+    } catch(err) {
+        return res.status(500).json({err: err.message});
+    }
 }
 
-const store = (req, res) => {
-    const heroeId = req.params.id;
-    const { score, comment } = req.body;
-    const userId = req.sessionUser.user.id;
+const store = async (req, res) => {
+    try {
+        const heroeId = req.params.id;
+        const { score, comment } = req.body;
+        const userId = req.sessionUser.user.id;
 
-    return getHeroe(heroeId, (err, heroe) => {
-        if (err) {
-            return res.status(500).json({ err });
-        }
+        const heroe = heroesRepository.retrieve(heroeId);
 
         if (!heroe) {
             return res.status(404).json({
@@ -52,25 +50,25 @@ const store = (req, res) => {
             });
         }
 
-        Score.create({
-                score,
-                comment,
-                user_id: userId,
-                heroe_id: heroeId
-            })
-            .then((score) => res.status(200).json({ heroe, score }))
-            .catch((erj) => res.status(500).json({ err }));
-    });
+        const foundScore = await Score.create({
+            score,
+            comment,
+            user_id: userId,
+            heroe_id: heroeId
+        })
+
+        return res.status(200).json({ heroe, score: foundScore });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
 }
 
 const show = (req, res) => {
-    const heroeId = req.params.id;
-    const scoreId = req.params.score_id;
+    try {
+        const heroeId = req.params.id;
+        const scoreId = req.params.score_id;
 
-    return getHeroe(heroeId, async (err, heroe) => {
-        if (err) {
-            return res.status(500).json({ err });
-        }
+        const heroe = heroesRepository.retrieve(heroeId);
 
         if (!heroe) {
             return res.status(404).json({ message: 'Resource not found' });
@@ -90,18 +88,19 @@ const show = (req, res) => {
                 score
             });
         });
-    });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
 }
 
 const update = (req, res) => {
-    const heroeId = req.params.id;
-    const scoreId = req.params.score_id;
-    const body = req.body;
+    try {
+        const heroeId = req.params.id;
+        const scoreId = req.params.score_id;
 
-    return getHeroe(heroeId, (err, heroe) => {
-        if (err) {
-            return res.status(500).json({ err });
-        }
+        const body = req.body;
+
+        const heroe = heroesRepository.retrieve(heroeId);
 
         if (!heroe) {
             return res.status(404).json({ message: 'Resource not found' });
@@ -130,42 +129,45 @@ const update = (req, res) => {
                 return res.status(500).json({ err });
             }
         });
-    });
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
 }
 
 const destroy = (req, res) => {
+    try {
+
+    } catch(err) {
+        return res.status(500).json({ err: err.message });
+    }
     const heroeId = req.params.id;
     const scoreId = req.params.score_id;
 
-    return getHeroe(heroeId, (err, heroe) => {
+    const heroe = heroesRepository.retrieve(heroeId);
+
+    if (!heroe) {
+        return res.status(404).json({ message: 'Resource not found' });
+    }
+
+    return getScore(scoreId, async (err, score) => {
         if (err) {
             return res.status(500).json({ err });
         }
 
-        if (!heroe) {
+        if (!score) {
             return res.status(404).json({ message: 'Resource not found' });
         }
 
-        return getScore(scoreId, async (err, score) => {
-            if (err) {
-                return res.status(500).json({ err });
-            }
+        try {
+            await score.destroy();
 
-            if (!score) {
-                return res.status(404).json({ message: 'Resource not found' });
-            }
-
-            try {
-                await score.destroy();
-
-                return res.status(200).json({
-                    heroe,
-                    score
-                });
-            } catch (err) {
-                return res.status(500).json({ err });
-            }
-        });
+            return res.status(200).json({
+                heroe,
+                score
+            });
+        } catch (err) {
+            return res.status(500).json({ err });
+        }
     });
 }
 
