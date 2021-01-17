@@ -1,7 +1,7 @@
 'use strict'
 
-const UserRepository = require('../repositories/user');
 const PasswordsUtils = require('../utils/passwords');
+const usersRepository = require('../repositories/user');
 
 const isCorrectPassword = (userPassword, incomingPassword) => {
     return PasswordsUtils.compare(incomingPassword, userPassword);
@@ -18,7 +18,7 @@ const auth = async (credentials) => {
         return null;
     }
 
-    const user = await UserRepository.findByUsername(username);
+    const user = await usersRepository.findByUsername(username);
 
     if (!user) {
         return null;
