@@ -1,8 +1,5 @@
 "use strict";
 const _ = require('lodash');
-const Heroe = require('../models').Heroe;
-const User = require('../models').User;
-const HeroeScore = require('../models').HeroeScore;
 const HeroePower = require('../models').HeroePower;
 const UploadedFileHelper = require('../helpers/uploaded-file-helper');
 
