@@ -7,30 +7,19 @@ const HeroePower = require('../models').HeroePower;
 const UploadedFileHelper = require('../helpers/uploaded-file-helper');
 
 const powersRepository = require('../repositories/powers');
+const heroesRepository = require('../repositories/heroes');
 
 const uploadsDir = 'server/storage/uploads';
 
 module.exports = {
     async getAll() {
         try {
-            return await Heroe.findAll({
-                include: ['powers', {
-                    model: HeroeScore,
-                    as: 'scores',
-                    include: [{
-                        model: User,
-                        as: 'user',
-                        attributes: ['name']
-                    }]
-                }],
-                order: [
-                    ['id', 'DESC']
-                ]
-            });
+            return await heroesRepository.findAll();
         } catch(error) {
             throw error;
         }
     },
+
     async attachPowers(heroe, powerIds) {
         const powersToAttach = _.isArray(powerIds) ? powerIds : [powerIds];
 
@@ -42,85 +31,66 @@ module.exports = {
                     continue;
                 }
 
-                await heroe.addPowers(power);
+                await heroesRepository.addPower(heroe, power);
             } catch (err) {
                 console.log(err.message);
             }
         }
     },
+
     async store({ heroeBody, powers, file }) {
-        try {
-            const heroe = await Heroe.create(heroeBody);
+        const heroe = await heroesRepository.store(heroeBody);
 
-            await this.attachPowers(heroe, powers);
+        await this.attachPowers(heroe, powers);
 
-            if (file) {
-                const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
-                heroe.filePath = await UploadedFileHelper.upload(relativePath, file);
-                await heroe.save();
-            }
-
-            return await Heroe.findByPk(heroe.id);
-        } catch(error) {
-            throw error;
+        if (file) {
+            const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
+            heroe.filePath = await UploadedFileHelper.upload(relativePath, file);
+            await heroesRepository.update(heroe);
         }
+
+        return heroe;
     },
+
     async find(id) {
-        try {
-            return await Heroe.findByPk(id, {
-                include: ["powers", "scores"]
-            });
-        } catch(error) {
-            throw error;
-        }
+        return await heroesRepository.retrieve(id);
     },
+
     async update(heroe, args) {
         const { heroeBody, powers, file } = args;
 
         heroe.name = heroeBody.name || heroe.name;
         heroe.age = heroeBody.age || heroe.age;
 
-        try {
-            if (powers.length > 0) {
-                try {
-                    await HeroePower.destroy({
-                        where: {
-                            heroe_id: heroe.id
-                        }
-                    });
-
-                    await this.attachPowers(heroe, powers);
-                } catch (err) {
-                    throw err;
-                }
-            }
-
-            if (file) {
-                if (heroe.filePath) {
-                    await UploadedFileHelper.destroy(heroe.filePath);
-                }
-
-                const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
-                heroe.filePath = await UploadedFileHelper.upload(relativePath, file);
-            }
-
-            await heroe.save();
-
-            return heroe.reload();
-        } catch(error) {
-            throw error;
-        }
-    },
-    async destroy(heroe) {
-        try {
+        if (powers.length > 0) {
             await HeroePower.destroy({
                 where: {
                     heroe_id: heroe.id
                 }
             });
-            await heroe.destroy();
-        } catch (error) {
-            throw error;
+
+            await this.attachPowers(heroe, powers);
         }
+
+        if (file) {
+            if (heroe.filePath) {
+                await UploadedFileHelper.destroy(heroe.filePath);
+            }
+
+            const relativePath = `${uploadsDir}/${heroe.id}/${file.name}`;
+            heroe.filePath = await UploadedFileHelper.upload(relativePath, file);
+        }
+
+        return heroesRepository.update(heroe);
+    },
+
+    async destroy(heroe) {
+        await HeroePower.destroy({
+            where: {
+                heroe_id: heroe.id
+            }
+        });
+
+        heroesRepository.destroy(heroe);
     }
 }
