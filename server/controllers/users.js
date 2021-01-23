@@ -71,7 +71,7 @@ const destroy = async (req, res) => {
     let id = req.params.id;
 
     try {
-        const user = await UserService.get(id);
+        const user = await usersService.get(id);
 
         if (!user) {
             res.status(404).json({
