@@ -1,33 +1,33 @@
 "use strict";
 const usersService = require('../services/users');
 
-const index = (req, res) => {
+const index = async (req, res) => {
     try {
-        const users = usersService.activeUsers();
+        const users = await usersService.activeUsers();
 
-        return res.json({ users });
+        return res.json({ data: { users } });
     } catch(error) {
         return res.status(500).json({ error: error.message });
     }
 }
 
-const store = (req, res) => {
+const store = async (req, res) => {
     let body = req.body;
 
     try {
-        const user = usersService.create(body);
+        const user = await usersService.create(body);
 
-        return res.json({ user });
+        return res.json({ data: { user } });
     } catch(error) {
         return res.status(500).json({ error: error.message });
     }
 }
 
-const show = (req, res) => {
+const show = async (req, res) => {
     let id = req.params.id;
 
     try {
-        const user = UserRepository.get(id);
+        const user = await usersService.get(id);
 
         if (!user) {
             return res.status(404).json({
@@ -79,9 +79,9 @@ const destroy = async (req, res) => {
             });
         }
 
-        const updatedUser = await UserRepository.destroy(user);
+        const updatedUser = await usersService.destroy(user);
 
-        return res.json({ user: updatedUser });
+        return res.json({ data: { user: updatedUser } });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
