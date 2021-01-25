@@ -12,7 +12,8 @@ const create = async (data) => {
         name: data.name,
         email: data.email,
         username: data.username,
-        password: PasswordsUtils.hash(data.password)
+        password: PasswordsUtils.hash(data.password),
+        isAdmin: data.isAdmin || false
     };
 
     return await usersRepository.create(args);
@@ -29,6 +30,7 @@ const update = async (user, data) => {
     user.name = data.name || user.name;
     user.email = data.email || user.email;
     user.password = hashedPassword || user.password;
+    user.isAdmin = data.isAdmin || false;
 
     return await usersRepository.update(user);
 };
