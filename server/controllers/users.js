@@ -87,10 +87,24 @@ const destroy = async (req, res) => {
     }
 }
 
+const storeAdmin = async (req, res) => {
+    let body = req.body;
+
+    try {
+        const user = await usersService.createAdmin(body);
+
+        return res.json({ data: { user } });
+    } catch(error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+
 module.exports = {
     index,
     store,
     show,
     update,
-    destroy
+    destroy,
+    storeAdmin
 }

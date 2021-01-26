@@ -13,7 +13,20 @@ const create = async (data) => {
         email: data.email,
         username: data.username,
         password: PasswordsUtils.hash(data.password),
-        isAdmin: data.isAdmin || false
+    };
+
+    delete args.isAdmin;
+
+    return await usersRepository.create(args);
+};
+
+const createAdmin = async (data) => {
+    let arg = {
+        name: data.name,
+        email: data.email,
+        username: data.username,
+        password: PasswordUtils.hash(data.password),
+        isAdmin: true,
     };
 
     return await usersRepository.create(args);
@@ -44,5 +57,6 @@ module.exports = {
     create,
     get,
     update,
-    destroy
+    destroy,
+    createAdmin
 }

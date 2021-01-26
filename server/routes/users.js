@@ -11,4 +11,6 @@ router.get('/users/:id', validateJwt, validateAdmin, usersController.show);
 router.put('/users/:id', validateJwt, validateAdmin, usersController.update);
 router.delete('/users/:id', validateJwt, validateAdmin, usersController.destroy);
 
+router.post('/admins', validateJwt, validateAdmin, usersController.storeAdmin);
+
 module.exports = router;
