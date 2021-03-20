@@ -2,6 +2,7 @@
 
 const authService = require('../services/auth');
 const jwtService = require('../services/jwt');
+const httpResponse = require('../utils/http-response');
 
 const logIn = async (req, res) => {
     let { username, password } = req.body;
@@ -10,23 +11,14 @@ const logIn = async (req, res) => {
         const user = await authService.auth({ username, password });
 
         if (!user) {
-            return res.status(401).json({
-                message: 'Unauthorized'
-            });
+            return httpResponse.error(res)('Unauthorized');
         }
 
         const jwt = jwtService.createToken({ user })
 
-        return res.json({
-            data: {
-                jwt,
-                user,
-            },
-        });
+        return httpResponse.ok(res)('', { jwt, user });
     } catch (error) {
-        return res.status(500).json({
-            error: error.message
-        });
+        return httpResponse.error(res)(error.message);
     }
 }
 
