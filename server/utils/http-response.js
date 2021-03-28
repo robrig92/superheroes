@@ -12,6 +12,12 @@ const ok = (res) => {
     }
 }
 
+const notFound = (res) => {
+    return (message = 'Resource not found', data = {}) => {
+        return res.status(404).json(responseObject(message, data));
+    }
+}
+
 const error = (res) => {
     return (message = '', data = {}) => {
         return res.status(500).json(responseObject(message, data));
@@ -28,5 +34,6 @@ const responseObject = (message = '', data = {}) => {
 module.exports = {
     ok,
     error,
+    notFound,
     unauthorized
 }

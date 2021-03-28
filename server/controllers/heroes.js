@@ -2,14 +2,15 @@
 
 const _ = require('lodash')
 const heroesService = require('../services/heroes');
+const httpResponse = require('../utils/http-response');
 
 const index = async (req, res) => {
     try {
         const heroes = await heroesService.getAll();
 
-        return res.json({ data: { heroes } });
+        return httpResponse.ok(res)('', { heroes });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)('', { err: err.message });
     }
 }
 
@@ -33,13 +34,9 @@ const store = async (req, res) => {
             file
         });
 
-        return res.json({
-            data: {
-                heroe
-            }
-        });
+        return httpResponse.ok(res)('', { data: { heroe } });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)({ err: err.message });
     }
 }
 
@@ -55,13 +52,9 @@ const show = async (req, res) => {
             });
         }
 
-        return res.json({
-            data: {
-                heroe
-            }
-        });
+        return httpResponse.ok(res)('', { heroe });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)('', { err: err.message });
     }
 };
 
@@ -79,9 +72,7 @@ const update = async (req, res) => {
         const heroe = await heroesService.find(id);
 
         if (!heroe) {
-            return res.status(404).json({
-                message: 'Resource not found'
-            });
+            return httpResponse.notFound(res)();
         }
 
         const updatedHeroe = await heroesService.update(heroe, {
@@ -90,9 +81,9 @@ const update = async (req, res) => {
             file
         })
 
-        return res.json({ data: { heroe: updatedHeroe } });
+        return httpResponse.ok(res)('', { heroe: updatedHeroe });
     } catch (err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)('', { err: err.message });
     }
 }
 
@@ -110,12 +101,9 @@ const destroy = async (req, res) => {
 
         await heroesService.destroy(heroe);
 
-        return res.json({
-            message: 'deleted',
-            heroe
-        });
+        return httpResponse.ok(res)('Deleted', { heroe });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)('', { err: err.message });
     }
 }
 
