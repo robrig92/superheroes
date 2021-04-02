@@ -1,18 +1,15 @@
 "use strict";
 
 const powersService = require('../services/powers');
+const httpResponse = require('../utils/http-response');
 
 const index = async (req, res) => {
     try {
         const powers = await powersService.findAll();
 
-        return res.json({
-            data: {
-                powers
-            }
-        });
+        return httpResponse.ok(res)('', { powers });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.ok(res)('', { err: err.message });
     }
 }
 
@@ -25,13 +22,9 @@ const store = async (req, res) => {
     try {
         const power = await powersService.store(args);
 
-        return res.status(201).json({
-            data: {
-                power
-            }
-        });
+        return httpResponse.created('', { power });
     } catch(err) {
-        return res.status(500).json({ err: err.message })
+        return httpResponse.error(res)('', { err: err.message });
     }
 }
 
@@ -47,13 +40,9 @@ const show = async (req, res) => {
             });
         }
 
-        return res.json({
-            data: {
-                power
-            }
-        });
+        return httpResponse.ok(res)('', { power })
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)('', { err: err.message });
     }
 }
 
@@ -65,20 +54,14 @@ const update = async (req, res) => {
         let power = await powersService.retrieve(id);
 
         if (!power) {
-            return res.status(404).json({
-                message: 'Resource not found'
-            });
+            return httpResponse.notFound(res)();
         }
 
         power = await powersService.update(power, body);
 
-        return res.json({
-            data: {
-                power
-            }
-        });
+        return httpResponse.ok(res)('', { power });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)({ err: err.message });
     }
 }
 
@@ -89,21 +72,14 @@ const destroy = async (req, res) => {
         const power = await powersService.retrieve(id);
 
         if (!power) {
-            return res.status(404).json({
-                message: 'Resource not found',
-            });
+            return httpResponse.notFound(res)();
         }
 
         await powersService.destroy(power);
 
-        return res.json({
-            message: 'Deleted',
-            data: {
-                power
-            }
-        });
+        return httpResponse.ok(res)('Deleted', { power });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)({ err: err.message });
     }
 }
 
