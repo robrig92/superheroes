@@ -1,6 +1,7 @@
 "use strict"
 
 const Score = require('../models').HeroeScore;
+const httpResponse = require('../utils/http-response');
 const heroesRepository = require('../repositories/heroes');
 
 const getHeroe = (id, callback) => {
@@ -22,17 +23,14 @@ const index = async (req, res) => {
         const heroe = await heroesRepository.retrieve(heroeId);
 
         if (!heroe) {
-            return res.status(404).json({ mesage: 'Resource not found' });
+            return httpResponse.notFound(res)();
         }
 
         const scores = await heroe.getScores({ include: 'user' });
 
-        return res.status(200).json({
-            heroe,
-            scores
-        });
+        return httpResponse.ok(res)('', { heroe, scores });
     } catch(err) {
-        return res.status(500).json({err: err.message});
+        return httpResponse.error(res)('', { err: err.message });
     }
 }
 
@@ -45,9 +43,7 @@ const store = async (req, res) => {
         const heroe = heroesRepository.retrieve(heroeId);
 
         if (!heroe) {
-            return res.status(404).json({
-                message: "Resource not found"
-            });
+            return httpResponse.notFound(res)();
         }
 
         const foundScore = await Score.create({
@@ -57,9 +53,9 @@ const store = async (req, res) => {
             heroe_id: heroeId
         })
 
-        return res.status(200).json({ heroe, score: foundScore });
+        return httpResponse.ok(res)('', { heroe, score: foundScore });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)('', { err: err.message });
     }
 }
 
@@ -71,25 +67,22 @@ const show = (req, res) => {
         const heroe = heroesRepository.retrieve(heroeId);
 
         if (!heroe) {
-            return res.status(404).json({ message: 'Resource not found' });
+            return httpResponse.notFound(res)();
         }
 
         return getScore(scoreId, (err, score) => {
             if (err) {
-                return res.status(500).json({ err });
+                return httpResponse.error(res)({ err });
             }
 
             if (!score) {
-                return res.status(404).json({ message: 'Resource not found' });
+                return httpResponse.notFound(res)();
             }
 
-            return res.status(200).json({
-                heroe,
-                score
-            });
+            return httpResponse.ok(res)({ heroe, score });
         });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)('', { err: err.message });
     }
 }
 
@@ -103,16 +96,16 @@ const update = (req, res) => {
         const heroe = heroesRepository.retrieve(heroeId);
 
         if (!heroe) {
-            return res.status(404).json({ message: 'Resource not found' });
+            return httpResponse.notFound(res)();
         }
 
         return getScore(scoreId, async (err, score) => {
             if (err) {
-                return res.status(500).json({ err });
+                return httpResponse.error(res)('', { err });
             }
 
             if (!score) {
-                return res.status(404).json({ message: 'Resource not found' });
+                return httpResponse.notFound(res)();
             }
 
             score.score = body.score || score.score;
@@ -121,16 +114,13 @@ const update = (req, res) => {
             try {
                 await score.save();
 
-                return res.status(200).json({
-                    heroe,
-                    score
-                });
+                return httpResponse.ok(res)('', { heroe, score });
             } catch(err) {
-                return res.status(500).json({ err });
+                return httpResponse.error(res)('', { err });
             }
         });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)('', { err: err.message });
     }
 }
 
