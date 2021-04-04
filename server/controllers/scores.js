@@ -70,7 +70,7 @@ const show = async (req, res) => {
     }
 }
 
-const update = (req, res) => {
+const update = async (req, res) => {
     try {
         const heroeId = req.params.id;
         const scoreId = req.params.score_id;

@@ -1,6 +1,6 @@
 "use strict";
 
-const scoresRepository = require('../repositores/scores');
+const scoresRepository = require('../repositories/scores');
 
 module.exports = {
     async find(id) {
