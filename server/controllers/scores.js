@@ -4,12 +4,6 @@ const Score = require('../models').HeroeScore;
 const httpResponse = require('../utils/http-response');
 const heroesRepository = require('../repositories/heroes');
 
-const getHeroe = (id, callback) => {
-    return Heroe.findByPk(id)
-        .then((heroe) => callback(null, heroe))
-        .catch((err) => callback(err))
-}
-
 const getScore = (id, callback) => {
     return Score.findByPk(id)
         .then((score) => callback(null, score))
@@ -124,41 +118,37 @@ const update = (req, res) => {
     }
 }
 
-const destroy = (req, res) => {
+const destroy = async (req, res) => {
     try {
+        const heroeId = req.params.id;
+        const scoreId = req.params.score_id;
 
+        const heroe = await heroesRepository.retrieve(heroeId);
+
+        if (!heroe) {
+            return httpResponse.notFound(res)();
+        }
+
+        return getScore(scoreId, async (err, score) => {
+            if (err) {
+                return httpResponse.error(res)('', { err });
+            }
+
+            if (!score) {
+                return httpResponse.notFound(res)();
+            }
+
+            try {
+                await score.destroy();
+
+                return httpResponse.ok(res)('', { heroes, score });
+            } catch (err) {
+                return httpResponse.error(res)('', { err });
+            }
+        });
     } catch(err) {
-        return res.status(500).json({ err: err.message });
+        return httpResponse.error(res)('', { err: err.message });
     }
-    const heroeId = req.params.id;
-    const scoreId = req.params.score_id;
-
-    const heroe = heroesRepository.retrieve(heroeId);
-
-    if (!heroe) {
-        return res.status(404).json({ message: 'Resource not found' });
-    }
-
-    return getScore(scoreId, async (err, score) => {
-        if (err) {
-            return res.status(500).json({ err });
-        }
-
-        if (!score) {
-            return res.status(404).json({ message: 'Resource not found' });
-        }
-
-        try {
-            await score.destroy();
-
-            return res.status(200).json({
-                heroe,
-                score
-            });
-        } catch (err) {
-            return res.status(500).json({ err });
-        }
-    });
 }
 
 module.exports = {
