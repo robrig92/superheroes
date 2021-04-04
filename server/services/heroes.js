@@ -89,5 +89,9 @@ module.exports = {
         });
 
         heroesRepository.destroy(heroe);
+    },
+
+    async getScores(heroe) {
+        return await heroe.getScores({ include: 'user' });
     }
 }
