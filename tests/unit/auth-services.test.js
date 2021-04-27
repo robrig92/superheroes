@@ -30,10 +30,10 @@ test('Correct login when correct credentials', async () => {
     }
 });
 
-test('No login when invalid credentials', async () => {
+test('No login when invalid username', async () => {
     try {
         const credentials = {
-            username: 'username',
+            username: 'usernameb',
             password: '11234567890'
         };
 
@@ -45,6 +45,34 @@ test('No login when invalid credentials', async () => {
 
         expect(response).toBeNull();
 
+    } catch(error) {
+        console.log(error);
+    }
+});
+
+test('No login when invalid password', async () => {
+    try {
+        const credentials = {
+            username: 'username',
+            password: '11234567890'
+        };
+
+        const resp = {
+            username: 'username',
+            name: 'user name',
+            password: '1234567890',
+            active: true
+        };
+
+        usersRepository.findByUsername = jest.fn().mockResolvedValue(resp);
+
+        PasswordsUtils.compare = jest.fn().mockImplementation((value, target) => {
+            return value === target;
+        });
+
+        const response = await authService.auth(credentials);
+
+        expect(response).toBeNull();
     } catch(error) {
         console.log(error);
     }
