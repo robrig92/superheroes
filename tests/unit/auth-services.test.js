@@ -2,7 +2,7 @@ const authService = require('../../server/services/auth');
 const PasswordsUtils = require('../../server/utils/passwords');
 const usersRepository = require('../../server/repositories/user');
 
-test('Correct auth', async () => {
+test('Correct login when correct credentials', async () => {
     try {
         const credentials = {
             username: 'username',
@@ -30,7 +30,7 @@ test('Correct auth', async () => {
     }
 });
 
-test('Invalid credentials', async () => {
+test('No login when invalid credentials', async () => {
     try {
         const credentials = {
             username: 'username',
